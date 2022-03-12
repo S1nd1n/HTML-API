@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <input type="text" id="a"> + <input type="text" id="b"> = <strong id="result"></strong>
+    <script>
+        if ('Worker' in window) {
+            //подключаем помощника
+            const worker = new Worker('worker.js');
+
+            //обработчик изменения инпут
+            const changeInput = ev => {
+                console.log({
+                    a: parseFloat(a.value),
+                    b: parseFloat(b.value),
+                });
+                //отправка данных помощнику
+                worker.postMessage({
+                    a: parseFloat(a.value),
+                    b: parseFloat(b.value),
+                });
+            }
+
+            //назначение обработчиков
+            a.addEventListener('input', changeInput);
+            b.addEventListener('input', changeInput);
+
+            worker.addEventListener('message', ev => {
+                //получение данных от помощника
+                result.innerHTML = ev.data;
+            });
+        }
+    </script>
+</body>
+
+</html>
