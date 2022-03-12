@@ -18,3 +18,7 @@ addEventListener('message', ev => {
     //отправка HTML-строки в основной скрипт
     postMessage(menu);
 })
+
+fetch("mock-request.json")
+    .then(response => response.json())
+    .then(result => console.log(result))
