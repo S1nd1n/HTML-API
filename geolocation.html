@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="button">Определить</div>
+
+    <div id="result"></div>
+    <script>
+        button.addEventListener('click', () => {
+            const targetElement = document.querySelector('#result');
+            navigator.geolocation.watchPosition(({ coords }) => {
+                const { latitude, longitude } = coords;
+                targetElement.innerHTML = `Широта: ${latitude}, долгота ${longitude}`;
+            });
+        });
+    </script>
+</body>
+
+</html>
