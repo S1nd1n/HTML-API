@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        * {
+            font-family: sans-serif;
+        }
+
+        .word {
+            background: rgb(245, 255, 105);
+            padding: 5px;
+            border-radius: 6px;
+            display: inline-block;
+            cursor: move;
+        }
+
+        .placeholder {
+            display: inline-block;
+            border: 1px solid rgb(179, 179, 179);
+            min-width: 40px;
+            height: 1rem;
+            padding: 3px;
+            border-radius: 5px;
+            margin-bottom: -7px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>решите задачу</h2>
+
+
+    <div>
+        <div class="word">Грека</div>
+        <div class="word">реку</div>
+    </div>
+
+
+    <hr>
+    <div>
+        Ехал
+        <div class="placeholder"></div>
+        через
+        <div class="placeholder"></div>
+    </div>
+
+
+    <hr>
+</body>
+<script>
+    // получаем коллекцию элементов с классом
+    let words = document.querySelectorAll('.word');
+    let holders = document.querySelectorAll('.placeholder');
+
+    // // ПРИМЕР ДЛЯ ОДНОГО ЭЛЕМЕНТА
+    // //получаем ссылку на элемент с первым словом ('Грека')
+    // let word1 = words[0];
+    // console.log(word1.innerHTML);
+
+    // //получаем ссылку на первое слово-место
+    // let holder1 = holders[0];
+
+    // //навешиваем обработчики на первые элементы
+    // word1.addEventListener('dragstart', dragstartListener);
+
+    // holder1.addEventListener('dragover', dragoverListener);
+    // holder1.addEventListener('drop', dropListener);
+    // //ЗАВЕРШЕНИЕ ПРИМЕРА ДЛЯ ОДНОГО ЭЛЕМЕНТА
+
+    // назначаем всем элементам атрибут draggable
+    words.forEach(word => {
+        word.setAttribute('draggable', 'true');
+        word.addEventListener('dragstart', dragstartListener);
+    });
+    holders.forEach(holder => {
+        holder.addEventListener('dragover', dragoverListener);
+        holder.addEventListener('drop', dropListener);
+    });
+
+    function dragstartListener(ev) {
+        const text = ev.target.innerHTML;
+        ev.dataTransfer.setData('text/plain', text)
+    }
+
+    function dragoverListener(ev) {
+        ev.preventDefault();
+    }
+
+    function dropListener(ev) {
+        ev.preventDefault();
+        ev.target.removeEventListener('dragover', dragoverListener);
+        ev.target.removeEventListener('drop', dropListener);
+
+        const txt = ev.dataTransfer.getData('text/plain');
+        ev.target.innerHTML = txt;
+
+        let word = null;
+        for (let i = 0; i < words.length; i++) {
+            if (words[i].innerHTML == txt) {
+                word = words[i];
+                word.removeEventListener('dragstart', dragstartListener);
+                word.style.background = `lime`;
+                word.removeAttribute('draggable');
+                break;
+            }
+        }
+    }
+</script>
+
+</html>
