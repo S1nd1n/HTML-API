@@ -1,15 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">  
+  <meta charset="UTF-8">
   <title>Document</title>
 </head>
+
 <body>
   <script>
     localStorage['test'] = 123;
     localStorage.setItem('test', 223);
     console.log(localStorage['test']);
-    console.log( localStorage.getItem('test') );
+    console.log(localStorage.getItem('test'));
+
+    // console.log(localStorage['test']);
+    // console.log(localStorage.getItem('test'));
+    // console.log(localStorage.key(0));
+    // console.log(localStorage.key(1));
+
+    for (let i = 0; i < localStorage.length; i++) {
+      console.log(localStorage[localStorage.key(i)]);
+    }
+
+    // Генератор для прохоа по всем пунктам localStorage
+    function* generator() {
+      for (let i = 0; i < localStorage.length; i++) {
+        yield localStorage[localStorage.key(i)];
+      }
+    }
+
+    const iterator1 = generator();
+    console.log(iterator1);
+    for (let value of iterator1) {
+      console.log(value);
+    }
   </script>
 </body>
+
 </html>

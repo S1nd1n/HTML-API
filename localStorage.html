@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        .table {
+            width: 400px;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Редактор localStorage</h1>
+
+    <h3>Добавление пункта</h3>
+    <div class="addform">
+        <form action="">
+            <div class="row">
+                <input type="text">
+                <input type="button" value="Добавить">
+            </div>
+        </form>
+    </div>
+
+    <h3>Перечень key/value</h3>
+    <table class="table">
+        <tr>
+            <th>№ п/п</th>
+            <th>key</th>
+            <th>value</th>
+            <th></th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>param1</td>
+            <td>100</td>
+            <td><a href="#">удалить</a></td>
+        </tr>
+    </table>
+    <script>
+        const addInput = document.querySelector('.addform input');
+        const button = document.querySelector('.addform input[type="button"]');
+        const table = document.querySelector('.table');
+
+        function showItems() {
+            // чистим строки таблицы
+            let rows = table.querySelectorAll('tr');
+            for (let i = 1; i < rows.length; i++) {
+                rows[i].remove();
+            }
+
+            // создаем новые строки
+            for (let i = 0; i < localStorage.length; i++) {
+                table.innerHTML += `
+                <tr>
+                    <td>${i + 1}
+                        <td>${localStorage.key(i)}
+                            <td>${localStorage[localStorage.key(i)]}
+                                <td><a href="#" onclick='deleteitem(${localStorage.key(i)})'>удалить</a>
+                                    </tr>`
+            }
+        }
+        showItems();
+
+        window.addEventListener('storage', e => {
+            showItems();
+        })
+
+        function deleteItem() {
+
+        }
+    </script>
+</body>
+
+</html>
