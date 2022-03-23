@@ -1,14 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">  
+  <meta charset="UTF-8">
   <title>Document</title>
+  <style>
+    body {
+      font: 1em sans-serif;
+    }
+
+    .todo {
+      width: 500px;
+      margin: auto;
+      font-size: 0.8em;
+      /* border: 1px solid #000;*/
+    }
+
+    .todo .input {
+      width: 100%;
+      font: 2em sans-serif;
+      box-sizing: border-box
+    }
+
+    .todo li.plan {}
+
+    .todo .done li {
+      text-decoration: line-through;
+    }
+
+    .todo li a {
+      margin-left: 10px;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>To do list</h1>
+
   <!-- 
    Создать список дел, используя IndexedDB
    Разметку можно взять тут https://codepen.io/htmllabru/pen/mqyqpG
    -->
+  <div class="todo">
+    <h1>To Do List</h1>
+    <input type="text" class="input" placeholder="добавьте дело">
+    <h3>Список дел</h3>
+    <ul class="plan"></ul>
+    <h3>Выполненные дела</h3>
+    <ul class="done"></ul>
+  </div>
+  <script>
+    //получаем ссылки на основные элементы
+    let
+      todo = document.querySelector(".todo"),
+      input = document.querySelector(".todo input"),
+      plan = document.querySelector(".todo .plan"),
+      done = document.querySelector(".todo .done");
+
+    //когда Enter - добавляем дело с список дел
+    input.onchange = function () {
+      //создаём новое дело
+      let li = document.createElement("li");
+      li.innerHTML = this.value;
+
+      //чистим поле ввода
+      this.value = "";
+
+      //запоминаем что дело не выполнено
+      li.status = "plan";
+
+      //меняем вид дела
+      li.onclick = function () {
+        this.className = this.status = this.status == "plan" ? "done" : "plan";
+        switch (this.status) {
+          case "plan": plan.appendChild(this); break;
+          case "done": done.appendChild(this); break;
+        }
+      }
+
+      //обрабатываем удаление дела
+      let a = document.createElement("a");
+      a.innerHTML = "Удалить";
+      a.href = "#";
+      a.onclick = function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        this.parentNode.parentNode.removeChild(this.parentNode);
+      }
+      li.appendChild(a);
+
+      //добавляем в соответствующий список
+      plan.appendChild(li);
+    }
+  </script>
+  <script>
+    // переменная для базы данных
+    let db;
+
+    // запрос на открытие/создание базы
+    let request = indexedDB.open('ToDoList', 1);
+
+    // назначаем обработчик ошибки
+    request.addEventListener('error', ev => {
+      console.log(ev);
+    });
+
+    // назначаем обработчик открытия
+    request.addEventListener('success', ev => {
+      db = ev.target.result;
+      console.log('база открыта', db);
+      console.log(ev);
+    });
+
+    // назначаем обработчик обновления/создания
+    request.addEventListener('upgradeneeded', ev => {
+      console.log('база создана/обновлена');
+      db = ev.target.result;
+
+      // создание хранилища с ключем
+      let objectStore = db.createObjectStore("tasks", {
+        keyPass: 'id',
+        autoIncrement: true
+      });
+
+      // добавляем задачу
+      objectStore.add({ title: 'Задача1', state: 'uncompleted' })
+      objectStore.add({ title: 'Задача2', state: 'completed' })
+      objectStore.add({ title: 'Задача3', state: 'completed' })
+      objectStore.add({ title: 'Задача4', state: 'uncompleted' })
+    });
+
+    /**
+     * showTasks отображает задачи в HTML-списках
+     * 
+     */
+    function showTasks() {
+      let ulCompletedTask = document.querySelector('.plan');
+      let ulUncompletedTask = document.querySelector('.done');
+
+      // чистим содержимое
+      ulCompletedTask.innerHTML = '';
+      ulUncompletedTask.innerHTML = '';
+
+      // получаем ссылку на объект-хранилище
+      let objectStore = db
+        .transaction('tasks')
+        .objectStore('tasks');
+
+      // добавление записей при проходе с курсором
+      objectStore.openCursor().addEventListener('success', ev => {
+        // ссылку на очередную позицию
+        let cursor = ev.target.result;
+
+        // проход с курсором по записям
+        if (cursor) {
+          console.log(cursor.value);
+
+          // создаем List item для списка
+          let li = document.createElement('li');
+
+          // указываем идентификатор записи
+          li.setAttribute('data-id', cursor.value.id);
+
+          // название задачи
+          let textLi = document.createTextNode(cursor.value.title);
+          li.appendChild(textLi);
+
+          // создаем и добавляем ссылку на удаление
+          let a = document.createElement('a');
+          a.innerHTML = 'Удалить';
+          a.addEventListener('click', ev => {
+            ev.preventDefault();
+            let parent = ev.target.parentNode;
+
+            let request = db.transaction('tasks', 'readwrite')
+              .objectStore('tasks')
+              .delete(+parent.getAttribute('data-id'));
+
+            // удаляем элемент списка из HTML
+            parent.remove();
+          })
+          a.setAttribute('href', '#')
+          li.appendChild(a);
+
+          let ulTask = cursor.value.state == 'completed' ? ulUncompletedTask : ulCompletedTask;
+          ulTask.appendChild(li);
+
+          cursor.continue();
+        }
+      })
+    }
+
+    setTimeout(() => { showTasks() }, 100);
+  </script>
 </body>
+
 </html>
