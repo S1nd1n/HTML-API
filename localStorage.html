@@ -25,6 +25,7 @@
         <form action="">
             <div class="row">
                 <input type="text">
+                <input type="text">
                 <input type="button" value="Добавить">
             </div>
         </form>
@@ -46,9 +47,27 @@
         </tr>
     </table>
     <script>
-        const addInput = document.querySelector('.addform input');
+        const addInputKey = document.querySelectorAll('.addform input')[0];
+        const addInputValue = document.querySelectorAll('.addform input')[1];
         const button = document.querySelector('.addform input[type="button"]');
         const table = document.querySelector('.table');
+
+        button.addEventListener('click', () => {
+            // если поля не заполнены - прекращаем работу
+            if (!addInputKey.value.trim()) return;
+            if (!addInputValue.value.trim()) return;
+
+            // устанавливаем пункт хранилища
+            localStorage[addInputKey.value] = addInputValue.value;
+
+            // отрисовываем набор ключей из хранилища
+            showItems();
+
+            // чистим поля ввода и назначаем фокус первому полю
+            addInputKey.value = '';
+            addInputValue.value = '';
+            addInputKey.focus();
+        })
 
         function showItems() {
             // чистим строки таблицы
@@ -64,7 +83,7 @@
                     <td>${i + 1}
                         <td>${localStorage.key(i)}
                             <td>${localStorage[localStorage.key(i)]}
-                                <td><a href="#" onclick='deleteitem(${localStorage.key(i)})'>удалить</a>
+                                <td><a href="#" onclick='deleteItem("${localStorage.key(i)}");return false'>удалить</a>
                                     </tr>`
             }
         }
@@ -74,8 +93,10 @@
             showItems();
         })
 
-        function deleteItem() {
-
+        function deleteItem(key) {
+            console.log(key);
+            localStorage.removeItem(key);
+            showItems();
         }
     </script>
 </body>
