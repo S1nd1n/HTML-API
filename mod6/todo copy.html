@@ -40,11 +40,14 @@
    -->
   <div class="todo">
     <h1>To Do List</h1>
-    <input type="text" class="input" placeholder="добавьте дело">
+    <input type="text" placeholder="добавьте дело">
+    <input type="text" placeholder="длительность в минутах">
     <h3>Список дел</h3>
     <ul class="plan"></ul>
     <h3>Выполненные дела</h3>
     <ul class="done"></ul>
+    <h3>Топ5 задач по длительности</h3>
+    <pre class="top5duration"></pre>
   </div>
   <script>
     //получаем ссылки на основные элементы
@@ -91,6 +94,27 @@
     }
   </script>
   <script>
+    // ссылка на элемен ввода названия задания
+    let taskInput = document.querySelector('input');
+    // ссылка на элемен ввода длительности задания
+    let durationInput = document.querySelectorAll('input')[1];
+
+    // по нажатию на Enter добавляем задание в базу
+    taskInput.addEventListener('keyup', ev => {
+      if (ev.target.value.trim() && ev.keyCode == 13) {
+        let request = db.transaction('tasks', 'readwrite')
+          .objectStore('tasks')
+          .add({ title: ev.target.value, state: 'uncompleted', duration: +durationInput.value });
+
+        // чистим поле ввода
+        ev.target.value = '';
+        ev.target.focus();
+
+        // заново отрисовываем результат
+        showTasks();
+      }
+    })
+
     // переменная для базы данных
     let db;
 
@@ -105,6 +129,7 @@
     // назначаем обработчик открытия
     request.addEventListener('success', ev => {
       db = ev.target.result;
+
       console.log('база открыта', db);
       console.log(ev);
     });
@@ -119,12 +144,29 @@
         keyPass: 'id',
         autoIncrement: true
       });
+      let durationIndex = objectStore.createIndex('ixduration', 'duration');
 
       // добавляем задачу
-      objectStore.add({ title: 'Задача1', state: 'uncompleted' })
-      objectStore.add({ title: 'Задача2', state: 'completed' })
-      objectStore.add({ title: 'Задача3', state: 'completed' })
-      objectStore.add({ title: 'Задача4', state: 'uncompleted' })
+      objectStore.add({
+        title: 'Задача1',
+        state: 'uncompleted',
+        duration: 10
+      })
+      objectStore.add({
+        title: 'Задача2',
+        state: 'completed',
+        duration: 25
+      })
+      objectStore.add({
+        title: 'Задача3',
+        state: 'completed',
+        duration: 15
+      })
+      objectStore.add({
+        title: 'Задача4',
+        state: 'uncompleted',
+        duration: 49
+      })
     });
 
     /**
@@ -134,10 +176,12 @@
     function showTasks() {
       let ulCompletedTask = document.querySelector('.plan');
       let ulUncompletedTask = document.querySelector('.done');
+      let preTop5DurationTask = document.querySelector('.top5duration');
 
       // чистим содержимое
       ulCompletedTask.innerHTML = '';
       ulUncompletedTask.innerHTML = '';
+      preTop5DurationTask.innerHTML = '';
 
       // получаем ссылку на объект-хранилище
       let objectStore = db
@@ -180,11 +224,50 @@
           a.setAttribute('href', '#')
           li.appendChild(a);
 
-          let ulTask = cursor.value.state == 'completed' ? ulCompletedTask : ulUncompletedTask;
+          let ulTask = cursor.value.state == 'completed' ? ulUncompletedTask : ulCompletedTask;
           ulTask.appendChild(li);
 
+          li.addEventListener('click', ev => {
+
+            // id зыписи, статус которой меняем
+            let id = +ev.target.getAttribute('data-id');
+
+            // получаем ссылку на объект-хранилище
+            let objectStore = db.transaction('tasks', 'readwrite').objectStore('tasks')
+
+            // получаем ссылку на задачу по id
+            console.log(objectStore.get(id))
+            let request = objectStore.get(id);
+
+            request.addEventListener('success', ev => {
+              let task = ev.target.result;
+
+              // меняем состояние задачи
+              db.transaction('tasks', 'readwrite')
+                .objectStore('tasks')
+                .put({
+                  ...task,
+                  id, state: task.state == 'completed' ? 'uncmpleted' : 'completed'
+                });
+              showTasks();
+            })
+          })
           cursor.continue();
         }
+      })
+      let durationIndex = db
+        .transaction('tasks')
+        .objectStore('tasks')
+        .index('ixduration');
+
+      let request = durationIndex.getAll(IDBKeyRange.lowerBound(15));
+
+      request.addEventListener('success', ev => {
+        preTop5DurationTask.innerHTML = JSON.stringify(
+          request.result.sort((a, b) => b.duration - a.duration).slice(0, 5),
+          null,
+          ' '
+        )
       })
     }
 
