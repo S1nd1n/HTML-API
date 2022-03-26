@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style>
+    canvas {
+      border: 1px solid #000;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <canvas id="canvas" width="500" height="350"></canvas>
+  <script>
+    let canvas = document.querySelector('#canvas');
+    let ctx = canvas.getContext('2d');
+    // console.log(ctx);
+    const rand = (a, b) => Math.round(
+      Math.random() * (b - a) + a
+    );
+    const c = (a = 0, b = 255) => rand(a, b);
+
+    console.log(ctx);
+
+    ctx.lineWidth = 5;
+    ctx.fillStyle = 'red';
+    ctx.strokeStyle = 'blue';
+    ctx.font = '35px Caveat';
+
+    ctx.shadowColor = 'green';
+    ctx.shadowOffsetX = 10;
+    ctx.shadowOffsetY = 10;
+    ctx.shadowBlur = 15;
+    canvas.onclick = ev => {
+      console.log(ev.clientX, ev.clientY)
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, 550, 350);
+      let x = range1.value;
+      let y = range2.value;
+
+      ctx.beginPath();
+      ctx.moveTo(50, 200);
+      ctx.quadraticCurveTo(x, y, 250, 220);
+
+      ctx.fillRect(50, 200, 10, 10);
+      ctx.fillRect(x, y, 10, 10);
+      ctx.fillRect(250, 220, 10, 10);
+
+      ctx.fillText(`x=${x}, y=${y}`, 100, 30);
+      ctx.lineWidth = 1;
+      ctx.strokeText(`x=${x}, y=${y}`, 100, 30);
+      ctx.lineWidth = 5;
+
+      ctx.stroke();
+      ctx.closePath();
+    }
+    setTimeout(draw, 0);
+  </script>
+  <!-- .row*2>input[type=range][id=range$] -->
+  <div class="row">
+    X<input type="range" id="range1" min=0 max=550 oninput="draw()">
+  </div>
+  <div class="row">
+    Y<input type="range" id="range2" min=0 max=350 oninput="draw()">
+  </div>
+</body>
+
+</html>

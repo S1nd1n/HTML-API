@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style>
+    canvas {
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvas" width="550" height="350"></canvas>
+  <script>
+    let canvas = document.querySelector('#canvas');
+    let ctx = canvas.getContext('2d');
+
+    ctx.font = "bold 60px sans-serif";
+    ctx.fillStyle = 'orange';
+    ctx.fillText('ТЕКСТ', 100, 100);
+
+    ctx.globalCompositeOperation = 'source-atop';
+
+    ctx.fillStyle = 'green';
+    // ctx.fillRect(100, 90, 300, 300);
+
+    ctx.moveTo(100, 100);
+    ctx.fillRect(100, 100, 5, 5);
+    ctx.fillRect(150, 40, 5, 5);
+    ctx.fillRect(200, 950, 5, 5);
+    ctx.fillRect(250, 20, 5, 5);
+    ctx.fillRect(300, 125, 5, 5);
+
+    ctx.bezierCurveTo(100, 100, 150, 40, 200, 90);
+    ctx.bezierCurveTo(200, 90, 250, 20, 300, 125);
+    ctx.lineTo(100, 100);
+    ctx.fill();
+    // ctx.stroke();
+  </script>
+</body>
+
+</html>

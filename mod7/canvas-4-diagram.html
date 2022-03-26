@@ -22,14 +22,19 @@
     );
     const c = (a = 0, b = 255) => rand(a, b);
 
-    for (let i = 0; i < 100; i++) {
-      ctx.fillStyle = `rgb(${c()}, ${c()}, ${c()})`;
+    console.log(ctx);
+
+    const data = [23, 56, 78, 35, 15];
+
+    ctx.fillStyle = '#369';
+    data.forEach((item, index) => {
       ctx.fillRect(
-        rand(0, canvas.width),
-        rand(0, canvas.height),
-        10,
-        10);
-    }
+        10 + index * 100,
+        canvas.height,
+        canvas.width / data.length - 20,
+        -item * canvas.height / Math.max(...data)
+      );
+    })
   </script>
 </body>
 
